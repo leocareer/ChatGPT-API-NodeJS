@@ -4,8 +4,8 @@ import config from 'config'
 
 const bot = new Telegraf(config.get('telegram_token'))
 
-bot.on(message('text'), async (ctx) => {
-  await ctx.reply(JSON.stringify(ctx.message, null, 2))
+bot.on(message('voice'), async (ctx) => {
+  await ctx.reply(JSON.stringify(ctx.message.voice, null, 2))
 })
 
 bot.command('start', async (ctx) => {
