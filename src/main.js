@@ -1,15 +1,32 @@
-import { Telegraf } from 'telegraf'
+import { session, Telegraf } from 'telegraf'
 import { message } from 'telegraf/filters'
 import { code } from 'telegraf/format'
 import config from 'config'
 import { ogg } from './ogg.js'
 import { openai } from './openai.js'
 
+const INITIAL_SESSION = {
+  messages: [],
+}
+
 const bot = new Telegraf(config.get('TELEGRAM_TOKEN'))
 
+bot.use(session())
+
+bot.command('new', async (ctx) => {
+  ctx.session = INITIAL_SESSION
+  await ctx.reply(code('buenos darling'))
+})
+
+bot.command('start', async (ctx) => {
+  ctx.session = INITIAL_SESSION
+  await ctx.reply(code('buenas darling'))
+})
+
 bot.on(message('voice'), async (ctx) => {
+  ctx.session ??= INITIAL_SESSION
   try {
-    await ctx.reply(code('get it sweetie wait please'))
+    await ctx.reply(code('get it sweetie'))
     //await ctx.reply(JSON.stringify(ctx.message.voice, null, 2))
     const link = await ctx.telegram.getFileLink(ctx.message.voice.file_id)
     const userId = String(ctx.message.from.id)
@@ -20,8 +37,14 @@ bot.on(message('voice'), async (ctx) => {
     await ctx.reply(code(`you said:`)) 
     await ctx.reply(code(`${text}`)) 
 
-    const messages = [{ role: openai.roles.USER, content: text }]
-    const response = await openai.chat(messages)
+    ctx.session.messages.push({ role: openai.roles.USER, content: text })
+    
+    const response = await openai.chat(ctx.session.messages)
+
+    ctx.session.messages.push({
+      role: openai.roles.ASSISTANT, 
+      content: response.content,
+    })
 
     await ctx.reply(response.content)
   } catch (e) {
@@ -29,9 +52,9 @@ bot.on(message('voice'), async (ctx) => {
   }
 })
 
-bot.command('start', async (ctx) => {
+/*bot.command('start', async (ctx) => {
   await ctx.reply(JSON.stringify(ctx.message, null, 2))
-})
+})*/
 
 bot.launch()
 
