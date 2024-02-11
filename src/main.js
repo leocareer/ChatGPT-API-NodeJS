@@ -1,5 +1,6 @@
 import { Telegraf } from 'telegraf'
 import { message } from 'telegraf/filters'
+import { code } from 'telegraf/format'
 import config from 'config'
 import { ogg } from './ogg.js'
 import { openai } from './openai.js'
@@ -8,6 +9,7 @@ const bot = new Telegraf(config.get('TELEGRAM_TOKEN'))
 
 bot.on(message('voice'), async (ctx) => {
   try {
+    await ctx.reply(code('get it sweetie wait please'))
     //await ctx.reply(JSON.stringify(ctx.message.voice, null, 2))
     const link = await ctx.telegram.getFileLink(ctx.message.voice.file_id)
     const userId = String(ctx.message.from.id)
@@ -16,7 +18,7 @@ bot.on(message('voice'), async (ctx) => {
     
     const text = await openai.transcription(mp3Path)
     //const response = await openai.chat(text)
-
+    await ctx.reply(code(`you said:`))
     await ctx.reply(text)
   } catch (e) {
     console.log('ERROR VOICE MESSAGE', e.message)
