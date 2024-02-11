@@ -4,7 +4,7 @@ import config from 'config'
 import { ogg } from './ogg.js'
 import { openai } from './openai.js'
 
-const bot = new Telegraf(config.get('telegram_token'))
+const bot = new Telegraf(config.get('TELEGRAM_TOKEN'))
 
 bot.on(message('voice'), async (ctx) => {
   try {
@@ -15,9 +15,9 @@ bot.on(message('voice'), async (ctx) => {
     const mp3Path = await ogg.toMp3(oggPath, userId)
     
     const text = await openai.transcription(mp3Path)
-    const response = await openai.chat(text)
+    //const response = await openai.chat(text)
 
-    await ctx.reply(mp3Path)
+    await ctx.reply(text)
   } catch (e) {
     console.log('ERROR VOICE MESSAGE', e.message)
   }
