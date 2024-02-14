@@ -15,18 +15,18 @@ bot.use(session())
 
 bot.command('new', async (ctx) => {
   ctx.session = INITIAL_SESSION
-  await ctx.reply(code('buenos darling'))
+  await ctx.reply(code('hello'))
 })
 
 bot.command('start', async (ctx) => {
   ctx.session = INITIAL_SESSION
-  await ctx.reply(code('buenas darling'))
+  await ctx.reply(code('hello'))
 })
 
 bot.on(message('voice'), async (ctx) => {
   ctx.session ??= INITIAL_SESSION
   try {
-    await ctx.reply(code('get it sweetie'))
+    await ctx.reply(code('request accepted'))
     //await ctx.reply(JSON.stringify(ctx.message.voice, null, 2))
     const link = await ctx.telegram.getFileLink(ctx.message.voice.file_id)
     const userId = String(ctx.message.from.id)
@@ -34,7 +34,7 @@ bot.on(message('voice'), async (ctx) => {
     const mp3Path = await ogg.toMp3(oggPath, userId)
     
     const text = await openai.transcription(mp3Path)
-    await ctx.reply(code(`you said:`)) 
+    await ctx.reply(code(`your question is:`)) 
     await ctx.reply(code(`${text}`)) 
 
     ctx.session.messages.push({ role: openai.roles.USER, content: text })
@@ -59,7 +59,7 @@ bot.on(message('voice'), async (ctx) => {
 bot.on(message('text'), async (ctx) => {
   ctx.session ??= INITIAL_SESSION
   try {
-    await ctx.reply(code('get it sweetie'))
+    await ctx.reply(code('request accepted'))
     
     //const text = await openai.transcription(ctx.message.text)
 
